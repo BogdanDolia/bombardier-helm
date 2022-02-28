@@ -1,0 +1,21 @@
+{{- range $host_name, $config := .Values.hosts }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $.Chart.Name }}-{{ $host_name }}
+  labels:
+    app: {{ $.Chart.Name }}-{{ $host_name }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  template:
+    spec:
+      containers:
+      - name: {{ $.Chart.Name }}-{{ $host_name }}
+        image: "{{ $.Values.image.repository }}"
+        args: {{ $config.command }}
+#        args: ["{{ $config.dns }}":"{{ $config.port }}"]
+      restartPolicy: Never
+  parallelism: {{ $config.parallelism }}
+  backoffLimit: 4
+---
+{{- end }}
